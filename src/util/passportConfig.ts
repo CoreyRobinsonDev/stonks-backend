@@ -38,6 +38,6 @@ const passportConfig = async (passport: PassportStatic) => {
       done(null, user);
     })
   });
-  await db.close();
+  
 }
 export default passportConfig;

@@ -6,13 +6,14 @@ import cookieParser  from "cookie-parser";
 import bcypt from "bcrypt";
 import session from "express-session";
 import passport from "passport";
-import dotEnv from "dot-env";
+import dotenv from "dotenv";
 
 import passportConfig from "./util/passportConfig";
+import {router as userRouter} from "./routes/user";
 
-dotEnv.config();
+dotenv.config();
 const app = express();
-const PORT = "3001";
+const PORT = process.env.PORT || "3001";
 const dbPromise = open({
     filename: "./database/finance.db",
     driver: sqlite3.Database
@@ -38,7 +39,9 @@ app.post("/register", async (req, res) => {
   const username = req.body.username.trim();
   const db = await dbPromise;
   const user = await db.get("SELECT * FROM users WHERE username = ?", [username]);
-  if (user) return res.status(409).send("Already Exists");
+
+  if (user) return res.status(409).send("Username Already Exists");
+  if (!username || !password || typeof username !== "string" || typeof password !== "string") return res.status(401).send("Improper Values")
   if (password !== confirmPassword) return res.status(401).send("Passwords Don't Match");
   const hashedPassword = await bcypt.hash(password, 10);
   
@@ -58,6 +61,9 @@ app.post("/logout", (req, res) => {
   req.logout(() => { });
   res.status(200).send("Success")
 })
+
+
+app.use("/user", userRouter);
   
 
 app.listen(PORT, () => {
