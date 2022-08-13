@@ -10,7 +10,7 @@ import dotenv from "dotenv";
 
 import passportConfig from "./util/passportConfig";
 import { router as userRouter } from "./routes/user";
-import { router as stocksRouter } from "./routes/stock";
+import { router as stocksRouter } from "./routes/stocks";
 
 dotenv.config();
 const app = express();
@@ -62,6 +62,7 @@ app.post("/logout", (req, res) => {
   req.logout(() => { });
   res.status(200).send("Success")
 })
+
 
 
 app.use("/user", userRouter);
