@@ -16,8 +16,8 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || "3001";
 const dbPromise = open({
-    filename: "./database/finance.db",
-    driver: sqlite3.Database
+  filename: "./database/finance.db",
+  driver: sqlite3.Database
 });
 
 // Middleware
