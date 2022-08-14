@@ -43,5 +43,26 @@ router.post("/tickerDetails", async (req, res) => {
 })
 
 router.post("/buy", async (req, res) => {
-  const { user_id, ticker } = req.body;
+  const currentDate = new Date().toISOString().slice(0, 10).split("-");
+  const yesterday = [...currentDate];
+  yesterday[2] = (+yesterday[2] - 2).toString();
+  yesterday[1] = (+yesterday[1] - 1).toString();
+  const yesterdayDate = new Date(+yesterday[0], +yesterday[1], +yesterday[2]).toISOString().slice(0, 10);
+  
+  const { user_id, symbol, num_shares } = req.body;
+  const transaction_type = "BUY";
+  const time = new Date().getTime();
+  const price = await axios.get(`${baseUrl}v1/open-close/${symbol}/${yesterdayDate}?apiKey=${apiKey}`)
+    .then((response) => response.data.close)
+    .catch(() => null)
+  if (!price) return res.status(500).send("Error during price lookup");
+  const company_name = await axios.get(`${baseUrl}v3/reference/tickers/${symbol}?apiKey=${apiKey}`)
+    .then((response) => response.data.results.name)
+    .catch(() => null)
+  if (!company_name) return res.status(500).send("Error during company name lookup");
+  const db = await dbPromise;
+
+  db.run("INSERT INTO history (user_id, symbol, price, num_shares, transaction_type, time, company_name) VALUES (?, ?, ?, ?, ?, ?, ?)", [user_id, symbol, price, num_shares, transaction_type, time, company_name])
+
+  db.close();
 })
