@@ -48,7 +48,8 @@ router.post("/buy", async (req, res) => {
   yesterday[1] = (+yesterday[1] - 1).toString();
   const yesterdayDate = new Date(+yesterday[0], +yesterday[1], +yesterday[2]).toISOString().slice(0, 10);
   
-  const { user_id, symbol, num_shares } = req.body;
+  const { user_id, symbol } = req.body;
+  const shares = parseInt(req.body?.num_shares);
   const transaction_type = "BUY";
   const time = new Date().getTime();
   const price = await axios.get(`${baseUrl}v1/open-close/${symbol}/${yesterdayDate}?apiKey=${apiKey}`)
@@ -63,11 +64,20 @@ router.post("/buy", async (req, res) => {
   const isSymbol = await axios.get(`${baseUrl}v3/reference/tickers/${symbol}?apiKey=${apiKey}`)
     .then((response) => response.data.results.ticker === symbol)
   if (!symbol || !isSymbol) return res.status(400).send("Invalid ticker symbol");
-  if (!num_shares) return res.status(400).send("Shares must be in positive integer amounts");
+  if (!shares) return res.status(400).send("Shares must be in positive integer amounts");
   if (!price) return res.status(500).send("Error during price lookup");
   if (!company_name) return res.status(500).send("Error during company name lookup");
 
-  db.run("INSERT INTO history (user_id, symbol, price, num_shares, transaction_type, time, company_name) VALUES (?, ?, ?, ?, ?, ?, ?)", [user_id, symbol, price, parseInt(num_shares), transaction_type, time, company_name])
+  db.run("INSERT INTO history (user_id, symbol, price, num_shares, transaction_type, time, company_name) VALUES (?, ?, ?, ?, ?, ?, ?)", [user_id, symbol, price, shares, transaction_type, time, company_name]);
+
+  const ownedShares = await db.get("SELECT shares FROM portfolio WHERE user_id = ? AND symbol = ?", [user_id, symbol]);
+  
+  if (ownedShares === undefined) {
+    await db.run("INSERT INTO portfolio (user_id, symbol, shares) VALUES (?, ?, ?)", [user_id, symbol, shares])
+  } else {
+    await db.run("UPDATE portfolio SET shares = ? WHERE user_id = ? and symbol = ?", [ownedShares.shares + shares, user_id, symbol])
+  }
+
   res.send("Success");
   db.close();
 })
