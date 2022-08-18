@@ -60,6 +60,8 @@ router.post("/buy", async (req, res) => {
     .catch(() => null)
   
   const db = await dbPromise;
+  const balanceObj = await db.get("SELECT balance FROM users WHERE id = ?", [user_id]);
+  const balance = balanceObj.balance;
 
   const isSymbol = await axios.get(`${baseUrl}v3/reference/tickers/${symbol}?apiKey=${apiKey}`)
     .then((response) => response.data.results.ticker === symbol)
@@ -67,8 +69,11 @@ router.post("/buy", async (req, res) => {
   if (!shares) return res.status(400).send("Shares must be in positive integer amounts");
   if (!price) return res.status(500).send("Error during price lookup");
   if (!company_name) return res.status(500).send("Error during company name lookup");
+  if (price * shares > balance) return res.status(400).send("Insufficient funds");
 
-  db.run("INSERT INTO history (user_id, symbol, price, num_shares, transaction_type, time, company_name) VALUES (?, ?, ?, ?, ?, ?, ?)", [user_id, symbol, price, shares, transaction_type, time, company_name]);
+  const remainingBalance = balance - (price * shares);
+  await db.run("UPDATE users SET balance = ? WHERE id = ?", [remainingBalance, user_id])
+  await db.run("INSERT INTO history (user_id, symbol, price, num_shares, transaction_type, time, company_name) VALUES (?, ?, ?, ?, ?, ?, ?)", [user_id, symbol, price, shares, transaction_type, time, company_name]);
 
   const ownedShares = await db.get("SELECT shares FROM portfolio WHERE user_id = ? AND symbol = ?", [user_id, symbol]);
   
@@ -78,6 +83,8 @@ router.post("/buy", async (req, res) => {
     await db.run("UPDATE portfolio SET shares = ? WHERE user_id = ? and symbol = ?", [ownedShares.shares + shares, user_id, symbol])
   }
 
-  res.send("Success");
-  db.close();
+  res.send({
+    message: `Successfully purchased ${shares} share${shares === 1 ? "" : "s"} of ${company_name} at $${price.toLocaleString("en-US")} for a total of $${(price * shares).toLocaleString("en-US")}`,
+    balance: remainingBalance
+  });
 })
