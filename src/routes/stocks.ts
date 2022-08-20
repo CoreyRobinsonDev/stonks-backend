@@ -58,13 +58,14 @@ router.post("/buy", async (req, res) => {
   const company_name = await axios.get(`${baseUrl}v3/reference/tickers/${symbol}?apiKey=${apiKey}`)
     .then((response) => response.data.results.name)
     .catch(() => null)
+  const isSymbol = await axios.get(`${baseUrl}v3/reference/tickers/${symbol}?apiKey=${apiKey}`)
+    .then((response) => response.data.results.ticker === symbol)
+    .catch(() => null)
   
   const db = await dbPromise;
   const balanceObj = await db.get("SELECT balance FROM users WHERE id = ?", [user_id]);
   const balance = balanceObj.balance;
 
-  const isSymbol = await axios.get(`${baseUrl}v3/reference/tickers/${symbol}?apiKey=${apiKey}`)
-    .then((response) => response.data.results.ticker === symbol)
   if (!symbol || !isSymbol) return res.status(400).send("Invalid ticker symbol");
   if (!shares) return res.status(400).send("Shares must be in positive integer amounts");
   if (!price) return res.status(500).send("Error during price lookup");
