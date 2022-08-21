@@ -77,3 +77,33 @@ router.post("/buy", async (req, res) => {
     balance: remainingBalance
   });
 })
+
+router.post("/sell", async (req, res) => {
+  const { user_id, symbol } = req.body;
+  const shares = parseInt(req.body.shares);
+  const db = await dbPromise;
+
+  const closeObj = await db.get("SELECT close FROM stocks WHERE symbol = ?", symbol);
+  const price = closeObj?.close;
+  const balanceObj = await db.get("SELECT balance FROM users WHERE id = ?", [user_id]);
+  const balance = balanceObj?.balance;
+  const portfolio = await db.all("SELECT symbol, shares FROM portfolio WHERE user_id = ?", [user_id]);
+  const hasSymbol = portfolio.find(obj => obj.symbol === symbol);
+  const ownedShares = hasSymbol?.shares;
+
+  if (!price || !symbol || !hasSymbol) return res.status(400).send("Invalid ticker symbol");
+  if (!shares) return res.status(400).send("Shares must be in positive integer amounts");
+  if (ownedShares < shares) return res.status(400).send("Insufficient shares");
+
+  if (ownedShares - shares === 0) {
+    await db.run("DELETE FROM portfolio WHERE user_id = ? AND symbol = ?", [user_id, symbol]);
+  } else {
+    await db.run("UPDATE portfolio SET shares = ? WHERE user_id = ? AND symbol = ?", [(ownedShares - shares), user_id, symbol]);
+  }
+  await db.run("UPDATE users SET balance = ? WHERE id = ?", [(price * shares) + balance, user_id]);
+
+  res.send({
+    message: `Successfully sold ${shares} shares of ${symbol} at $${price.toLocaleString("en-US")} per share for a total of $${(price * shares).toLocaleString("en-US")}`,
+    balance: (price * shares) + balance
+  })
+})
