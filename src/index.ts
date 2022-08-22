@@ -68,7 +68,7 @@ app.post("/register", async (req, res) => {
   if (password !== confirmPassword) return res.status(401).send("Passwords Don't Match");
   const hashedPassword = await bcypt.hash(password, 10);
   
-  await db.run("INSERT INTO users (username, password, balance) VALUES (?, ?, ?)", [username, hashedPassword, 0]);
+  await db.run("INSERT INTO users (username, password, balance) VALUES (?, ?, ?)", [username, hashedPassword, 10000]);
 
   res.status(201).send("Account Created");
   db.close();

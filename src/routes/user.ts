@@ -1,12 +1,10 @@
 import express from "express";
 import sqlite3 from "sqlite3";
-import axios from "axios";
 import dotenv from "dotenv";
 import { open } from "sqlite";
 dotenv.config();
 
-const apiKey = process.env.API_KEY;
-const baseUrl = "https://api.polygon.io/";
+
 export const router = express.Router();
 const dbPromise = open({
   filename: "./database/finance.db",
@@ -30,6 +28,15 @@ router.post("/getPortfolio", async (req, res) => {
     portfolio[i].price = price;
     portfolio[i].color = colors[i % colors.length];
   }
-  console.log(portfolio)
+  
   res.send(portfolio);
+})
+
+router.post("/getRecentHistory", async (req, res) => {
+  const { user_id } = req.body;
+  const db = await dbPromise;
+
+  const history = await db.all("SELECT symbol, price, num_shares, transaction_type FROM history WHERE user_id = ? ORDER BY time DESC LIMIT 5", [user_id]);
+  
+  res.send(history);
 })
