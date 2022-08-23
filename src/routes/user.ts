@@ -36,7 +36,16 @@ router.post("/getRecentHistory", async (req, res) => {
   const { user_id } = req.body;
   const db = await dbPromise;
 
-  const history = await db.all("SELECT symbol, price, num_shares, transaction_type FROM history WHERE user_id = ? ORDER BY time DESC LIMIT 5", [user_id]);
+  const history = await db.all("SELECT symbol, price, num_shares, transaction_type, time FROM history WHERE user_id = ? ORDER BY time DESC LIMIT 5", [user_id]);
   
+  res.send(history);
+})
+
+router.post("/getAllHistory", async (req, res) => {
+  const { user_id } = req.body;
+  const db = await dbPromise;
+
+  const history = await db.all("SELECT symbol, price, num_shares, transaction_type, time FROM history WHERE user_id = ? ORDER BY time DESC", [user_id]);
+
   res.send(history);
 })

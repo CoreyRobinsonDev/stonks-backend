@@ -27,7 +27,7 @@ router.post("/tickerDetails", async (req, res) => {
   const db = await dbPromise;
   
   const closeObj = await db.get("SELECT close FROM stocks WHERE symbol = ?", [ticker]);
-  const close = closeObj.close;
+  const close = closeObj?.close;
 
   let tickerDetails = await axios.get(`${baseUrl}v3/reference/tickers/${ticker}?apiKey=${apiKey}`)
     .then((response) => response.data)
