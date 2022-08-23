@@ -71,7 +71,6 @@ app.post("/register", async (req, res) => {
   await db.run("INSERT INTO users (username, password, balance) VALUES (?, ?, ?)", [username, hashedPassword, 10000]);
 
   res.status(201).send("Account Created");
-  db.close();
 })
 
 

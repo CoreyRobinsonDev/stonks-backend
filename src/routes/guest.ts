@@ -11,9 +11,12 @@ const dbPromise = open({
 
 router.post("/reset", async (req, res) => {
   const db = await dbPromise;
-  const idObj = await db.get("SELECT id FROM users WHERE username = 'Guest'");
-  const id = idObj.id;
+  const idObj = await db.get("SELECT id FROM users WHERE username LIKE 'Guest%'");
+  const id = idObj?.id;
+  if (!id) return;
 
   db.run("UPDATE users SET balance = 10000 WHERE id = ?", [id]);
   db.run("DELETE FROM portfolio WHERE user_id = ?", [id]);
+  db.run("DELETE FROM history WHERE user_id = ?", [id]);
+  db.run("DELETE FROM users WHERE id = ?", [id]);
 })
