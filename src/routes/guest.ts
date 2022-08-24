@@ -15,7 +15,6 @@ router.post("/reset", async (req, res) => {
   const id = idObj?.id;
   if (!id) return;
 
-  db.run("UPDATE users SET balance = 10000 WHERE id = ?", [id]);
   db.run("DELETE FROM portfolio WHERE user_id = ?", [id]);
   db.run("DELETE FROM history WHERE user_id = ?", [id]);
   db.run("DELETE FROM users WHERE id = ?", [id]);

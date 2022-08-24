@@ -93,9 +93,9 @@ router.post("/sell", async (req, res) => {
   const time = new Date().getTime();
   const ownedShares = hasSymbol?.shares;
 
-  if (!price || !symbol || !hasSymbol) return res.status(400).send("Invalid ticker symbol");
+  if (!price || !symbol) return res.status(400).send("Invalid ticker symbol");
   if (!shares) return res.status(400).send("Shares must be in positive integer amounts");
-  if (ownedShares < shares) return res.status(400).send("Insufficient shares");
+  if (ownedShares < shares || !ownedShares || !hasSymbol) return res.status(400).send("Insufficient shares");
 
   if (ownedShares - shares === 0) {
     await db.run("DELETE FROM portfolio WHERE user_id = ? AND symbol = ?", [user_id, symbol]);
