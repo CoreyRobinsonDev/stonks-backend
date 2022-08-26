@@ -24,24 +24,6 @@ const dbPromise = open({
 });
 
 
-// (async () => {
-//   const apiKey = process.env.API_KEY;
-//   const db = await dbPromise;
-//   const stocks = await axios.get(`https://api.polygon.io/v2/aggs/grouped/locale/us/market/stocks/2020-10-14?apiKey=${apiKey}`).then((res) => res.data.results)
-  
-//   for (const stock of stocks) {
-//     stock.c = stock.c ?? 0;
-//     stock.h = stock.h ?? 0;
-//     stock.l = stock.l ?? 0;
-//     stock.n = stock.n ?? 0;
-//     stock.o = stock.o ?? 0;
-//     stock.v = stock.v ?? 0;
-//     stock.vw = stock.vw ?? 0;
-//    await db.run("INSERT INTO stocks (symbol, close, high, low, num_transactions, open, volume, volume_weighted_price) VALUES(?,?,?,?,?,?,?,?)", [stock.T, stock.c, stock.h, stock.l, stock.n, stock.o, stock.v, stock.vw])
-//   }
-//   console.log("done")
-// })()
-
 // Middleware
 app.use(cors());
 app.use(express.json());
