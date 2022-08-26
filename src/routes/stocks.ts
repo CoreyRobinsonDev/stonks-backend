@@ -32,7 +32,7 @@ router.post("/tickerDetails", async (req, res) => {
   let tickerDetails = await axios.get(`${baseUrl}v3/reference/tickers/${ticker}?apiKey=${apiKey}`)
     .then((response) => response.data)
     .catch(() => null)
-  const tickerNews = await axios.get(`${baseUrl}v2/reference/news?ticker=${ticker}&apiKey=${apiKey}`)
+  const tickerNews = await axios.get(`${baseUrl}v2/reference/news?ticker=${ticker}&limit=100&apiKey=${apiKey}`)
     .then((response) => response.data)
     .catch(() => null)
   if (!tickerDetails || !tickerNews) return res.status(400).send("Invalid Ticker");
