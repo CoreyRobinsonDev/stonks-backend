@@ -25,7 +25,7 @@ const dbPromise = open({
 
 
 // Middleware
-app.use(cors({ origin: "*", credentials: true }));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(session({
   secret: "secretcode",
