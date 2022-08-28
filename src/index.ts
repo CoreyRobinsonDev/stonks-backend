@@ -25,7 +25,7 @@ const dbPromise = open({
 
 
 // Middleware
-app.options("*", cors());
+app.use(cors({ origin: "https://stonks-crd.netlify.app/", credentials: true }));
 app.use(express.json());
 app.use(session({
   secret: "secretcode",
