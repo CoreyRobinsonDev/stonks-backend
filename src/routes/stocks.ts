@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 dotenv.config();
 export const router = express.Router();
 
-const apiKey = process.env.API_KEY;
+const apiKey = "770epG0wPvr5Q9vFRhVLiwWCNnKce6xF";
 const baseUrl = "http://api.polygon.io/";
 const dbPromise = open({
   filename: "./database/finance.db",
