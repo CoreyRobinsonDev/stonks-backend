@@ -25,7 +25,6 @@ Simple brokerage site where stocks can be bought and sold.
 - *Stock quotes and news fetched from [Polygon.io](https://polygon.io/) api*
 - *General stock info is saved in database to minimize api fetches*
 
-
 ## Features:
 - Create account
 - Buy and sell stocks
@@ -34,3 +33,10 @@ Simple brokerage site where stocks can be bought and sold.
 - View transaction history
 - Look up stock info
 - Get recent news on a stock
+
+## Deployed with:
+### Frontend:
+- Netlify
+
+### Backend & Database:
+- Heroku
