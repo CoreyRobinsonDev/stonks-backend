@@ -1,9 +1,8 @@
 # Stonks
 Simple brokerage site where stocks can be bought and sold.
 
-*[Live Preview](https://stonks-crd.netlify.app/)*
+*[Live Preview](https://stonks-crd.netlify.app/)*\
 *[Front-End Code](https://github.com/CoreyRobinsonDev/stonks)*
-
 
 ## Built with:
 ### Frontend:
